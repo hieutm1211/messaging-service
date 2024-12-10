@@ -1,20 +1,20 @@
-# Base image
-FROM node:18
+FROM node:19-alpine as development
 
-# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
+ENV NODE_ENV=development
+
+# node:19-alpine throw `ps: not found` if using nestjs watch mode, so install this stuff will help us resolve this error 
+# RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+RUN npm install glob rimraf
 
-# Copy the source code
+RUN npm install --only=development
+
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 3000
+RUN npm run build
 
-# Start the application
-CMD ["npm", "run", "start:dev"]
+CMD [ "npm","run","start:dev" ]
